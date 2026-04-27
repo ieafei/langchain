@@ -4,6 +4,10 @@ from langchain.agents.middleware import wrap_tool_call
 from dataclasses import dataclass
 from langchain.tools import tool, ToolRuntime
 from langchain_core.messages import ToolMessage
+import dotenv
+
+dotenv.load_dotenv()
+
 
 SYSTEM_PROMPT = """你是一位擅长用双关语表达的专家天气预报员。
 
@@ -30,8 +34,9 @@ class ResponseFormat:
     weather_conditions: str | None = None
 
 @tool
-def get_weather_for_location(city: str) -> str:
+def get_weather_for_location(city: str, runtime: ToolRuntime[Context]) -> str:
     """获取指定城市的天气。"""
+    print(f"agent state: {runtime.state}")
     return f"{city}总是阳光明媚！"
 
 @tool
@@ -81,11 +86,3 @@ response = agent.invoke(
 
 print(response['structured_response'])
 
-response = agent.invoke(
-    {"messages": [{"role": "user", "content": "谢谢！"}]},
-    config=config,
-    context=Context(user_id="1")
-)
-
-
-print(response['structured_response'])
